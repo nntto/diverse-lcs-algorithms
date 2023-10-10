@@ -22,9 +22,13 @@ class LCS:
         # dpテーブルの上端の行の初期化
         for i in range(0, m + 1):
             dp_table[i, 0] = 0
+            if i != 0:
+                previous_position_dict[(i, 0)] = [Direction.UP]
         # dpテーブルの左端の列の初期化
         for j in range(0, n + 1):
             dp_table[0, j] = 0
+            if j != 0:
+                previous_position_dict[(0, j)] = [Direction.LEFT]
 
         for i in range(1, m + 1):
             for j in range(1, n + 1):
