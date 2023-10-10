@@ -6,6 +6,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+# 試す．
+
+```bash
+python main.py
+```
+
 # テストを実行する．
 
 ```bash

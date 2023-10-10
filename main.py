@@ -1,14 +1,29 @@
+from pprint import pprint
 from lcs import LCS
+from lcs_graph import LCSGraph
 
 
 if __name__ == "__main__":
-    # LCSのDPテーブルを計算
-    lcs = LCS("ACBDA", "BDCABA")
-    print(lcs.length)
-    print(lcs.dp_table)
-    print(lcs.previous_position_table)
+    # example from figure/Reachability_graph.png
+    S = "ABACB"
+    T = "BABBCAB"
 
-    # 2次元LCSグラフ G = (V_G, E_G, lab)を計算する．
-    # Gは，LCSの到達可能性グラフのこと
-    # ./figure/Reachability_graph.png を参照
+    # LCSのDPテーブルを計算
+    lcs = LCS(S, T)
+    print(f"LCS length = {lcs.length}")
+    print("DP table")
+    print(lcs.dp_table)
+    print("previous position dict")
+    pprint({k: [e.name for e in v] for k, v in lcs.previous_position_dict.items()})
+
+    # LCSの計算結果をもとに，LCSグラフを計算
+    lcs_graph = LCSGraph(lcs.previous_position_dict, S, T)
+    print("LCS graph")
+    print("V_G")
+    pprint(lcs_graph.V_G)
+    print("E_G")
+    pprint(lcs_graph.E_G)
+    print("edge label")
+    pprint(lcs_graph.edge_label)
+
     pass
