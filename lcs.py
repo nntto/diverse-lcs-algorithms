@@ -8,26 +8,26 @@ class LCS:
     # LCSのDPテーブル
     dp_table: np.ndarray
     # (m, n) からトレースを辿る際に，(0, 0)に到達するまでの経路を記録する
-    previous_position_dict: Dict[Tuple[int, int], List[Tuple[int, int]]]
+    previous_position_dict: Dict[Tuple[int, int], List[Direction]]
     # LCSの長さ
     length: int
 
     def __init__(self, S: str, T: str) -> None:
-        m = len(S) + 1
-        n = len(T) + 1
+        m = len(S)
+        n = len(T)
 
-        dp_table = np.zeros((m, n), dtype=int)
+        dp_table = np.zeros((m + 1, n + 1), dtype=int)
         previous_position_dict = {}
 
         # dpテーブルの上端の行の初期化
-        for i in range(0, m):
+        for i in range(0, m + 1):
             dp_table[i, 0] = 0
         # dpテーブルの左端の列の初期化
-        for j in range(0, n):
+        for j in range(0, n + 1):
             dp_table[0, j] = 0
 
-        for i in range(1, m):
-            for j in range(1, n):
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
                 # 文字が一致した場合，delta = 1
                 delta = 1 if S[i - 1] == T[j - 1] else 0
 
@@ -49,5 +49,5 @@ class LCS:
 
         self.dp_table = dp_table
         self.previous_position_dict = previous_position_dict
-        self.length = dp_table[m - 1, n - 1]
+        self.length = dp_table[m, n]
 
