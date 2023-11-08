@@ -9,10 +9,14 @@ from my_enum import Direction
 class LCSGraph:
     V_G: List[Tuple[int, int]]  # (i, j)のリスト
     eps_free_V_G: List[Tuple[int, int]]  # 空遷移除去後の頂点集合
+    leveled_eps_free_V_G: Dict[int, List[Tuple[int, int]]]  # 階層化された頂点集合
     E_G: List[
         Tuple[Tuple[int, int], str, List[Tuple[int, int]]]
     ]  # (i, j) -> [(i', j'), ...]のリスト
     eps_free_E_G: List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]  # 空遷移除去後の辺集合
+    leveled_eps_free_E_G: Dict[
+        int, List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]
+    ]  # 階層化された辺集合
     S: str  # 長さmの文字列, 座標(i, j)に対応する文字はS[i-1]
 
     # 作業用変数
@@ -62,6 +66,12 @@ class LCSGraph:
         _Sigma, self.eps_free_V_G, self.eps_free_E_G, I, F = erase_eps(
             "", self.V_G, self.E_G, {(0, 0)}, {(self.m, self.n)}
         )
+
+        # epsilon除去後の頂点集合に対して，Sからそれぞれの頂点までの距離を計算する
+        distances = self.bfs()
+
+        # epsilon除去後の頂点集合と辺集合を階層化する
+        self.compute_leveled_graph(distances)
 
     def rec_reach(
         self, u, previous_position_dict: Dict[Tuple[int, int], List[Direction]]
@@ -121,3 +131,28 @@ class LCSGraph:
                     distances[new_position] = current_distance + 1
 
         return distances
+
+    def compute_leveled_graph(self, distances: Dict[Tuple[int, int], int]):
+        """ 階層化されたLCSグラフの頂点集合と辺集合を計算する．
+
+        頂点集合と辺集合は，Sからの距離hを基準に階層化される．
+        - leveled_eps_free_V_G = V_G_0, ..., V_G_ell
+        - leveled_eps_free_E_G = E_G_1, ..., E_G_ell
+        """
+        self.leveled_eps_free_V_G = {}
+        self.leveled_eps_free_E_G = {}
+
+        for v, h in distances.items():
+            if h not in self.leveled_eps_free_V_G:
+                self.leveled_eps_free_V_G[h] = [v]
+            else:
+                self.leveled_eps_free_V_G[h].append(v)
+            if h + 1 not in self.leveled_eps_free_E_G:
+                self.leveled_eps_free_E_G[h + 1] = []
+
+            # 距離hの頂点集合に属する頂点vから距離h+1の頂点uに向かう辺を追加する
+            for edge in [e for e in self.eps_free_E_G if e[0] == v]:
+                print(edge)
+                if edge[2] in distances:
+                    self.leveled_eps_free_E_G[h + 1].append(edge)
+

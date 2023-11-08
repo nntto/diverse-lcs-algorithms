@@ -24,6 +24,9 @@ if __name__ == "__main__":
     pprint(lcs_graph.eps_free_V_G)
     print("epsilon-free E_G")
     pprint(lcs_graph.eps_free_E_G)
-    pprint(lcs_graph.bfs())
+    print("leveled_eps_free V_G")
+    pprint(lcs_graph.leveled_eps_free_V_G)
+    print("leveled_eps_free E_G")
+    pprint(lcs_graph.leveled_eps_free_E_G)
 
     pass
