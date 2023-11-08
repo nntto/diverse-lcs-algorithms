@@ -1,4 +1,5 @@
 from pprint import pprint
+from diverse_lcs_graph import DiverseLCSGraph
 from lcs import LCS
 from lcs_graph import LCSGraph
 from erase_eps import erase_eps
@@ -28,5 +29,19 @@ if __name__ == "__main__":
     pprint(lcs_graph.leveled_eps_free_V_G)
     print("leveled_eps_free E_G")
     pprint(lcs_graph.leveled_eps_free_E_G)
+
+    # diverse LCSの計算
+    diverse_lcs_graph = DiverseLCSGraph(
+        lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G
+    )
+    print("diverse LCS graph")
+    print("DP table")
+    pprint(diverse_lcs_graph.L)
+    print("V_H")
+    pprint(diverse_lcs_graph.V_H)
+    print("E_H")
+    pprint(diverse_lcs_graph.E_H)
+    print("hamming distance")
+    print(diverse_lcs_graph.hamming_distance)
 
     pass
