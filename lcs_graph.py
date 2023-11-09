@@ -14,19 +14,22 @@ class LCSGraph:
     E_G: List[Edge_G]  # (i, j) -> [(i', j'), ...]のリスト
     eps_free_E_G: List[Edge_G]  # 空遷移除去後の辺集合
     leveled_eps_free_E_G: Dict[int, List[Edge_G]]  # 階層化された辺集合
-    S: str  # 長さmの文字列, 座標(i, j)に対応する文字はS[i-1]
+    X: str  # 長さmの文字列, 座標(i, j)に対応する文字はS[i-1]
+    s: Vertex_G  # LCSグラフの入口に対応する座標
+    t: Vertex_G  # LCSグラフの出口に対応する座標
 
     # 作業用変数
     reached: np.ndarray  # reached[i, j] = True <=> (i, j)に到達済み
 
-    def __init__(self, previous_position_dict, S, T, ell) -> None:
+    def __init__(self, previous_position_dict, X, Y, s, t) -> None:
         """文字列SとTに対するLCSグラフを構築する
 
         入力：
         - previous_position_dict: LCSのDPテーブルの各マスに到達する前のマスの座標を記録したテーブル
-        - S: 長さmの文字列
-        - T: 長さnの文字列
-        - ell: LCSの長さ
+        - X: 長さmの文字列
+        - Y: 長さnの文字列
+        - s: LCSグラフの入口に対応する座標
+        - t: LCSグラフの出口に対応する座標
 
         LCSグラフの説明：
         LCSグラフとは3つ組(V_G, E_G, edge_label)である.
@@ -38,30 +41,32 @@ class LCSGraph:
 
         構築方法
         1. DPテーブル構築時に作成した, 各マスに到達する前のマスの座標を記録したテーブルを入力として受け取る．(コード上では辞書で実装)
-        2. (m, n)から(0, 0)に到達するまでの全ての経路を辿る．
+        2. tからsに到達するまでの全ての経路を辿る．
         3. 辿った経路と頂点をV_G, E_Gに追加する.
            辺ラベルには, LCSを構成する文字または空文字が入る.
-            - 文字を設定 <=> (i-1, j-1)->(i,j)に遷移する,かつ,S[i-1] == T[j-1]
+            - 文字を設定 <=> (i-1, j-1)->(i,j)に遷移する,かつ,X[i-1] == Y[j-1]
             - 空文字を設定 <=> それ以外の場合
         4. 最後に，epsilon除去を行う．
         """
-        self.m = len(S)
-        self.n = len(T)
+        self.m = len(X)
+        self.n = len(Y)
         self.V_G = []
         self.E_G = []
         self.edge_label = {}
-        self.S = S
-        self.T = T
+        self.X = X
+        self.Y = Y
+        self.s = s
+        self.t = t
 
         # reachedの初期化. 全ての要素をFalseにする
         self.reached = np.zeros((self.m + 1, self.n + 1), dtype=bool)
 
-        # (self.m, self.n)から(0, 0)に到達するまでの全ての経路を辿る
-        self.rec_reach((self.m, self.n), previous_position_dict)
+        # tからsに到達するまでの全ての経路を辿る
+        self.rec_reach(t, previous_position_dict)
 
         # epsilon 除去
         _Sigma, self.eps_free_V_G, self.eps_free_E_G, I, F = erase_eps(
-            "", self.V_G, self.E_G, {(0, 0)}, {(self.m, self.n)}
+            "", self.V_G, self.E_G, {s}, {t}
         )
 
         # epsilon除去後の頂点集合に対して，Sからそれぞれの頂点までの距離を計算する
@@ -78,7 +83,7 @@ class LCSGraph:
         # uに到達したので，V_Gに追加し，(i,j)から出る辺の集合を初期化
         self.V_G.append(u)
 
-        if u == (0, 0):
+        if u == self.s:
             return
 
         for direct in previous_position_dict.get(u, []):
@@ -95,9 +100,9 @@ class LCSGraph:
                 direct == Direction.UPPER_LEFT
                 and
                 # 左上から遷移する場合でも，文字が一致しない場合がある．
-                self.S[u_prime[0]] == self.T[u_prime[1]]
+                self.X[u_prime[0]] == self.Y[u_prime[1]]
             ):
-                c = self.S[u_prime[0]]
+                c = self.X[u_prime[0]]
 
             # 辺を辺集合に追加する
             self.E_G.append((u_prime, c, u))
@@ -106,9 +111,9 @@ class LCSGraph:
 
     def bfs(self):
         """全ての頂点について，始点からの最短経路長を計算する．"""
-        queue = deque([(0, 0)])
+        queue = deque([self.s])
         # 始点から各頂点までの最短経路長を記録するdictionary
-        distances = {(0, 0): 0}
+        distances = {self.s: 0}
 
         while queue:
             current_position = queue.popleft()

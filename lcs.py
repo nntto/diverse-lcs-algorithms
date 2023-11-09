@@ -13,9 +13,9 @@ class LCS:
     # LCSの長さ
     length: int
 
-    def __init__(self, S: str, T: str) -> None:
-        m = len(S)
-        n = len(T)
+    def __init__(self, X: str, Y: str) -> None:
+        m = len(X)
+        n = len(Y)
 
         dp_table = np.zeros((m + 1, n + 1), dtype=int)
         previous_position_dict = {}
@@ -34,7 +34,7 @@ class LCS:
         for i in range(1, m + 1):
             for j in range(1, n + 1):
                 # 文字が一致した場合，delta = 1
-                delta = 1 if S[i - 1] == T[j - 1] else 0
+                delta = 1 if X[i - 1] == Y[j - 1] else 0
 
                 # dpテーブルの更新
                 dp_table[i, j] = max(

@@ -9,8 +9,8 @@ from lcs_graph import LCSGraph
 def setup_argparse():
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-    parser.add_argument("S", type=str, help="First string for LCS computation")
-    parser.add_argument("T", type=str, help="Second string for LCS computation")
+    parser.add_argument("X", type=str, help="First string for LCS computation")
+    parser.add_argument("Y", type=str, help="Second string for LCS computation")
     return parser.parse_args()
 
 
@@ -19,9 +19,9 @@ def setup_logging(debug):
     logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def compute_lcs(S, T):
-    lcs = LCS(S, T)
-    logging.info(f"LCS computed for strings '{S}' and '{T}'")
+def compute_lcs(X, Y):
+    lcs = LCS(X, Y)
+    logging.info(f"LCS computed for strings '{X}' and '{Y}'")
     logging.info(f"LCS length = {lcs.length}")
     logging.debug(f"DP table:\n{pformat(lcs.dp_table)}")
     logging.debug(
@@ -30,8 +30,8 @@ def compute_lcs(S, T):
     return lcs
 
 
-def compute_lcs_graph(lcs, S, T):
-    lcs_graph = LCSGraph(lcs.previous_position_dict, S, T, lcs.length)
+def compute_lcs_graph(lcs, X, Y):
+    lcs_graph = LCSGraph(lcs.previous_position_dict, X, Y, (0, 0), (len(X), len(Y)))
     logging.info("LCS graph computed.")
     logging.debug(f"Epsilon-free V_G:\n{pformat(lcs_graph.eps_free_V_G)}")
     logging.debug(f"Epsilon-free E_G:\n{pformat(lcs_graph.eps_free_E_G)}")
@@ -56,6 +56,6 @@ if __name__ == "__main__":
     args = setup_argparse()
     setup_logging(args.debug)
 
-    lcs = compute_lcs(args.S, args.T)
-    lcs_graph = compute_lcs_graph(lcs, args.S, args.T)
+    lcs = compute_lcs(args.X, args.Y)
+    lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
     diverse_lcs_graph = compute_diverse_lcs_graph(lcs_graph)
