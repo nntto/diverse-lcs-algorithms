@@ -12,6 +12,9 @@ class PathTupleGraph:
     L: Dict[Vertex_H, int]  # Sから各頂点までの最大距離積パスのハミング距離を格納するDPテーブル
     # パスラベルを取ると，diverse LCS となる2本のLCSが得られる．
 
+    # diverse LCS 集合
+    diverse_LCS_set: set[Tuple[str, str]]
+
     def __init__(
         self,
         leveled_V_G: Dict[int, List[Vertex_G]],
@@ -28,6 +31,7 @@ class PathTupleGraph:
 
         self.V_H, self.E_H, self.L = self._compute_dp(S)
         self.hamming_distance = self.L[T]
+        self.diverse_LCS_set = self._compute_diverse_LCS_set(S, T)
 
     def _compute_dp(
         self, S: Vertex_H
@@ -110,3 +114,30 @@ class PathTupleGraph:
             delta = 0 if c1 == c2 else 1
             if L[V] + delta == L[U]:
                 E_H.append((V, (c1, c2), U))
+
+    def _compute_diverse_LCS_set(self, S, T):
+        """diverse LCS集合を計算する．"""
+
+        def dfs(V, path):
+            # V の出辺集合
+            out_edges_of_V = [edge for edge in self.E_H if edge[0] == V]
+
+            # 出口 T に到達したならば，path を diverse LCS として LCS_set に追加する
+            if V == T:
+                diverse_LCS = ["", ""]
+                for c1, c2 in path:
+                    diverse_LCS[0] += c1
+                    diverse_LCS[1] += c2
+                LCS_set.add(tuple(diverse_LCS))
+                return
+
+            for e in out_edges_of_V:
+                # If the edge has a label, add it to the current path
+                if e[1]:
+                    dfs(e[2], path + [e[1]])
+                else:
+                    dfs(e[2], path)
+
+        LCS_set = set()
+        dfs(S, [])
+        return LCS_set
