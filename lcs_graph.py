@@ -8,12 +8,16 @@ from my_enum import Direction
 
 
 class LCSGraph:
+    # 3 種類の頂点集合
     V_G: List[Vertex_G]  # (i, j)のリスト
     eps_free_V_G: List[Vertex_G]  # 空遷移除去後の頂点集合
     leveled_eps_free_V_G: Dict[int, List[Vertex_G]]  # 階層化された頂点集合
+
+    # 3 種類の辺集合
     E_G: List[Edge_G]  # (i, j) -> [(i', j'), ...]のリスト
     eps_free_E_G: List[Edge_G]  # 空遷移除去後の辺集合
     leveled_eps_free_E_G: Dict[int, List[Edge_G]]  # 階層化された辺集合
+
     X: str  # 長さmの文字列, 座標(i, j)に対応する文字はS[i-1]
     s: Vertex_G  # LCSグラフの入口に対応する座標
     t: Vertex_G  # LCSグラフの出口に対応する座標
@@ -40,76 +44,74 @@ class LCSGraph:
         - E_G = E_G_1, ..., E_G_ell
 
         構築方法
-        1. DPテーブル構築時に作成した, 各マスに到達する前のマスの座標を記録したテーブルを入力として受け取る．(コード上では辞書で実装)
-        2. tからsに到達するまでの全ての経路を辿る．
+        1. DPテーブル構築時に作成した, 各マスに到達する前のマスの座標を記録したテーブルを入力として受け取る．
+        2. tからsに到達する全ての経路を辿る．
         3. 辿った経路と頂点をV_G, E_Gに追加する.
            辺ラベルには, LCSを構成する文字または空文字が入る.
             - 文字を設定 <=> (i-1, j-1)->(i,j)に遷移する,かつ,X[i-1] == Y[j-1]
             - 空文字を設定 <=> それ以外の場合
-        4. 最後に，epsilon除去を行う．
+        4. epsilon除去を行う．
+        5. 階層化を行う
         """
         self.m = len(X)
         self.n = len(Y)
         self.V_G = []
         self.E_G = []
-        self.edge_label = {}
         self.X = X
         self.Y = Y
         self.s = s
         self.t = t
 
-        # reachedの初期化. 全ての要素をFalseにする
+        # 到達可能性マップの初期化
         self.reached = np.zeros((self.m + 1, self.n + 1), dtype=bool)
 
-        # tからsに到達するまでの全ての経路を辿る
-        self.rec_reach(t, previous_position_dict)
+        # t から s へのパスをたどりグラフを構築
+        self._rec_reach(t, previous_position_dict)
 
-        # epsilon 除去
+        # epsilon遷移を削除したグラフを構築
         _Sigma, self.eps_free_V_G, self.eps_free_E_G, I, F = erase_eps(
             "", self.V_G, self.E_G, {s}, {t}
         )
 
-        # epsilon除去後の頂点集合に対して，Sからそれぞれの頂点までの距離を計算する
-        distances = self.bfs()
+        # epsilon遷移を削除したグラフの頂点集合に対して，Sからそれぞれの頂点までの距離を計算する
+        distances = self._bfs()
 
-        # epsilon除去後の頂点集合と辺集合を階層化する
-        self.compute_leveled_graph(distances)
+        # 階層化されたグラフを計算
+        self._compute_leveled_graph(distances)
 
-    def rec_reach(self, u, previous_position_dict: Dict[Vertex_G, List[Direction]]):
+    def _rec_reach(self, u, previous_position_dict: Dict[Vertex_G, List[Direction]]):
+        """与えられた頂点 u から入口へのパスを再帰的に探索し、グラフを構築する。"""
         if self.reached[u]:
             return
-
         self.reached[u] = True
-        # uに到達したので，V_Gに追加し，(i,j)から出る辺の集合を初期化
+
         self.V_G.append(u)
 
         if u == self.s:
             return
 
+        # u の入り辺の始点 u' を探索する
+        # 同時に，辺集合を構築する
         for direct in previous_position_dict.get(u, []):
-            # uからdirect方向に遷移した先の頂点
             u_prime = tuple(map(sum, zip(u, direct.value)))
 
-            # 辺ラベルの設定
-            # 文字が一致しなかった場合，ラベルは空文字
+            # 辺ラベルの構築
             c = ""
-
-            # 文字が一致した場合，ラベルはその文字
             if (
-                # 左上から遷移する場合のみ，文字が一致する
                 direct == Direction.UPPER_LEFT
-                and
-                # 左上から遷移する場合でも，文字が一致しない場合がある．
-                self.X[u_prime[0]] == self.Y[u_prime[1]]
+                and self.X[u_prime[0]] == self.Y[u_prime[1]]
             ):
+                # 左上から遷移かつ，文字が一致する場合のみ辺ラベルに文字を設定する
                 c = self.X[u_prime[0]]
 
-            # 辺を辺集合に追加する
-            self.E_G.append((u_prime, c, u))
+            # 構築した辺 e を辺集合に追加する
+            e = (u_prime, c, u)
+            self.E_G.append(e)
 
-            self.rec_reach(u_prime, previous_position_dict)
+            # u' から再帰的に探索する
+            self._rec_reach(u_prime, previous_position_dict)
 
-    def bfs(self):
+    def _bfs(self):
         """全ての頂点について，始点からの最短経路長を計算する．"""
         queue = deque([self.s])
         # 始点から各頂点までの最短経路長を記録するdictionary
@@ -129,7 +131,7 @@ class LCSGraph:
 
         return distances
 
-    def compute_leveled_graph(self, distances: Dict[Vertex_G, int]):
+    def _compute_leveled_graph(self, distances: Dict[Vertex_G, int]):
         """階層化されたLCSグラフの頂点集合と辺集合を計算する．
 
         頂点集合と辺集合は，Sからの距離hを基準に階層化される．
