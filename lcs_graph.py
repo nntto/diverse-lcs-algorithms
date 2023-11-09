@@ -1,5 +1,6 @@
 from collections import deque
-from typing import Dict, List, Tuple
+from typing import Dict, List
+from custom_types import Edge_G, Vertex_G
 
 import numpy as np
 from erase_eps import erase_eps
@@ -7,16 +8,12 @@ from my_enum import Direction
 
 
 class LCSGraph:
-    V_G: List[Tuple[int, int]]  # (i, j)のリスト
-    eps_free_V_G: List[Tuple[int, int]]  # 空遷移除去後の頂点集合
-    leveled_eps_free_V_G: Dict[int, List[Tuple[int, int]]]  # 階層化された頂点集合
-    E_G: List[
-        Tuple[Tuple[int, int], str, List[Tuple[int, int]]]
-    ]  # (i, j) -> [(i', j'), ...]のリスト
-    eps_free_E_G: List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]  # 空遷移除去後の辺集合
-    leveled_eps_free_E_G: Dict[
-        int, List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]
-    ]  # 階層化された辺集合
+    V_G: List[Vertex_G]  # (i, j)のリスト
+    eps_free_V_G: List[Vertex_G]  # 空遷移除去後の頂点集合
+    leveled_eps_free_V_G: Dict[int, List[Vertex_G]]  # 階層化された頂点集合
+    E_G: List[Edge_G]  # (i, j) -> [(i', j'), ...]のリスト
+    eps_free_E_G: List[Edge_G]  # 空遷移除去後の辺集合
+    leveled_eps_free_E_G: Dict[int, List[Edge_G]]  # 階層化された辺集合
     S: str  # 長さmの文字列, 座標(i, j)に対応する文字はS[i-1]
 
     # 作業用変数
@@ -73,9 +70,7 @@ class LCSGraph:
         # epsilon除去後の頂点集合と辺集合を階層化する
         self.compute_leveled_graph(distances)
 
-    def rec_reach(
-        self, u, previous_position_dict: Dict[Tuple[int, int], List[Direction]]
-    ):
+    def rec_reach(self, u, previous_position_dict: Dict[Vertex_G, List[Direction]]):
         if self.reached[u]:
             return
 
@@ -129,7 +124,7 @@ class LCSGraph:
 
         return distances
 
-    def compute_leveled_graph(self, distances: Dict[Tuple[int, int], int]):
+    def compute_leveled_graph(self, distances: Dict[Vertex_G, int]):
         """階層化されたLCSグラフの頂点集合と辺集合を計算する．
 
         頂点集合と辺集合は，Sからの距離hを基準に階層化される．

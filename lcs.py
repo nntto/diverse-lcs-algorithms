@@ -1,4 +1,5 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
+from custom_types import Vertex_G
 import numpy as np
 
 from my_enum import Direction
@@ -8,7 +9,7 @@ class LCS:
     # LCSのDPテーブル
     dp_table: np.ndarray
     # (m, n) からトレースを辿る際に，(0, 0)に到達するまでの経路を記録する
-    previous_position_dict: Dict[Tuple[int, int], List[Direction]]
+    previous_position_dict: Dict[Vertex_G, List[Direction]]
     # LCSの長さ
     length: int
 
@@ -54,4 +55,3 @@ class LCS:
         self.dp_table = dp_table
         self.previous_position_dict = previous_position_dict
         self.length = dp_table[m, n]
-

@@ -1,28 +1,21 @@
-from pprint import pprint
-from typing import Dict, List, Tuple
+from typing import Dict, List
+
+from custom_types import Edge_G, Edge_H, Vertex_G, Vertex_H
 
 
 class DiverseLCSGraph:
     hamming_distance: int
-    leveled_V_G: Dict[int, List[Tuple[int, int]]]
-    leveled_E_G: Dict[int, List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]]
-    V_H: List[Tuple[Tuple[int, int], Tuple[int, int]]]  # diverse LCSのパス対グラフの頂点集合
-    E_H: List[  # diverse LCSのパス対グラフの辺集合
-        Tuple[
-            Tuple[Tuple[int, int], Tuple[int, int]],  # LCSグラフの頂点対
-            Tuple[str, str],  # 辺ラベルの対
-            Tuple[Tuple[int, int], Tuple[int, int]],  # LCSグラフの頂点対
-        ]
-    ]
-    L: Dict[Tuple[Tuple[int, int], Tuple[int, int]], int]  # diverse LCSのハミング距離
+    leveled_V_G: Dict[int, List[Vertex_G]]
+    leveled_E_G: Dict[int, List[Edge_G]]
+    V_H: List[Vertex_H]  # diverse LCSのパス対グラフの頂点集合
+    E_H: List[Edge_H]  # diverse LCSのパス対グラフの辺集合
+    L: Dict[Vertex_H, int]  # diverse LCSのハミング距離
     # パスラベルを取ると，diverse LCS となる2本のLCSが得られる．
 
     def __init__(
         self,
-        leveled_V_G: Dict[int, List[Tuple[int, int]]],
-        leveled_E_G: Dict[
-            int, List[Tuple[Tuple[int, int], str, List[Tuple[int, int]]]]
-        ],
+        leveled_V_G: Dict[int, List[Vertex_G]],
+        leveled_E_G: Dict[int, List[Edge_G]],
     ) -> None:
         s = leveled_V_G[0][0]  # 始点．V_G_0は始点のみからなる頂点集合
         t = leveled_V_G[len(leveled_V_G) - 1][0]  # 終点．V_G_ellは終点のみからなる頂点集合
@@ -33,7 +26,7 @@ class DiverseLCSGraph:
         self.L = self.DP((s, s))
         self.hamming_distance = self.L[(t, t)]
 
-    def DP(self, S: Tuple[Tuple[int, int], Tuple[int, int]]) -> None:
+    def DP(self, S: Vertex_H) -> None:
         """動的計画法でdiverse LCSのハミング距離を計算する．
         同時に，diverse LCSのパス対グラフを構築する．
         """
