@@ -1,9 +1,9 @@
 import argparse
 import logging
 from pprint import pformat
-from diverse_lcs_graph import DiverseLCSGraph
 from lcs import LCS
 from lcs_graph import LCSGraph
+from path_tuple_graph import PathTupleGraph
 
 
 def setup_argparse():
@@ -40,8 +40,8 @@ def compute_lcs_graph(lcs, X, Y):
     return lcs_graph
 
 
-def compute_diverse_lcs_graph(lcs_graph):
-    diverse_lcs_graph = DiverseLCSGraph(
+def compute_path_tuple_graph(lcs_graph):
+    diverse_lcs_graph = PathTupleGraph(
         lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G
     )
     logging.info("Diverse LCS graph computed.")
@@ -58,4 +58,4 @@ if __name__ == "__main__":
 
     lcs = compute_lcs(args.X, args.Y)
     lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
-    diverse_lcs_graph = compute_diverse_lcs_graph(lcs_graph)
+    path_tuple_graph = compute_path_tuple_graph(lcs_graph)
