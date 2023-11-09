@@ -110,9 +110,7 @@ class LCSGraph:
             self.rec_reach(u_prime, previous_position_dict)
 
     def bfs(self):
-        """ 全ての頂点について，始点からの最短経路長を計算する．
-
-        """
+        """全ての頂点について，始点からの最短経路長を計算する．"""
         queue = deque([(0, 0)])
         # 始点から各頂点までの最短経路長を記録するdictionary
         distances = {(0, 0): 0}
@@ -122,7 +120,6 @@ class LCSGraph:
             current_distance = distances[current_position]
 
             for edge in [e for e in self.eps_free_E_G if e[0] == current_position]:
-                print(edge)
                 new_position = edge[2]
 
                 # new_positionが訪問されていない場合
@@ -133,7 +130,7 @@ class LCSGraph:
         return distances
 
     def compute_leveled_graph(self, distances: Dict[Tuple[int, int], int]):
-        """ 階層化されたLCSグラフの頂点集合と辺集合を計算する．
+        """階層化されたLCSグラフの頂点集合と辺集合を計算する．
 
         頂点集合と辺集合は，Sからの距離hを基準に階層化される．
         - leveled_eps_free_V_G = V_G_0, ..., V_G_ell
@@ -152,7 +149,5 @@ class LCSGraph:
 
             # 距離hの頂点集合に属する頂点vから距離h+1の頂点uに向かう辺を追加する
             for edge in [e for e in self.eps_free_E_G if e[0] == v]:
-                print(edge)
                 if edge[2] in distances:
                     self.leveled_eps_free_E_G[h + 1].append(edge)
-
