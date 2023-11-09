@@ -33,6 +33,7 @@ def compute_lcs(X, Y):
 def compute_lcs_graph(lcs, X, Y):
     lcs_graph = LCSGraph(lcs.previous_position_dict, X, Y, (0, 0), (len(X), len(Y)))
     logging.info("LCS graph computed.")
+    logging.debug(f"LCS set:\n{pformat(lcs_graph.LCS_set)}")
     logging.debug(f"Epsilon-free V_G:\n{pformat(lcs_graph.eps_free_V_G)}")
     logging.debug(f"Epsilon-free E_G:\n{pformat(lcs_graph.eps_free_E_G)}")
     logging.debug(f"Leveled_eps_free V_G:\n{pformat(lcs_graph.leveled_eps_free_V_G)}")

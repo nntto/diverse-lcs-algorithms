@@ -25,6 +25,9 @@ class LCSGraph:
     # 作業用変数
     reached: np.ndarray  # reached[i, j] = True <=> (i, j)に到達済み
 
+    # LCS集合
+    LCS_set: List[str]
+
     def __init__(self, previous_position_dict, X, Y, s, t) -> None:
         """文字列SとTに対するLCSグラフを構築する
 
@@ -78,6 +81,9 @@ class LCSGraph:
 
         # 階層化されたグラフを計算
         self._compute_leveled_graph(distances)
+
+        # LCS集合を計算
+        self._compute_LCS_set()
 
     def _rec_reach(self, u, previous_position_dict: Dict[Vertex_G, List[Direction]]):
         """与えられた頂点 u から入口へのパスを再帰的に探索し、グラフを構築する。"""
@@ -153,3 +159,26 @@ class LCSGraph:
             for edge in [e for e in self.eps_free_E_G if e[0] == v]:
                 if edge[2] in distances:
                     self.leveled_eps_free_E_G[h + 1].append(edge)
+
+    def _compute_LCS_set(self):
+        """LCS集合を計算する．"""
+
+        def dfs(v, path):
+            # v の出辺集合
+            out_edges_of_v = [edge for edge in self.eps_free_E_G if edge[0] == v]
+
+            # 出辺集合が空の場合，pathをLCS集合に追加する
+            if not out_edges_of_v:
+                self.LCS_set.add("".join(path))
+                return
+
+            for e in out_edges_of_v:
+                # If the edge has a label, add it to the current path
+                if e[1]:
+                    dfs(e[2], path + [e[1]])
+                else:
+                    dfs(e[2], path)
+
+        self.LCS_set = set()
+        dfs(self.s, [])
+        return list(self.LCS_set)
