@@ -7,6 +7,7 @@ pip install -r requirements.txt
 ```
 
 # 実行例
+## 提案手法
 実行コマンド：
 ```bash
 python main.py python main.py "ABACB" "BABBCAB" 2
@@ -26,6 +27,19 @@ INFO - Diversity min = 3
 デバッグモードでの実行コマンド
 ```bash
 python main.py python main.py "ABACB" "BABBCAB" 2 --debug
+```
+
+## ナイーブな実装
+実行コマンド：
+```bash
+python naive.py BACB ABCB ABAB 2
+```
+実行結果：
+```bash
+INFO - Received the following string set: ['BACB', 'ABCB', 'ABAB']
+INFO - Received the following value of k: 2
+INFO - Minimum diversity: 3
+INFO - Minimum diversity set: ('BACB', 'ABAB')
 ```
 
 # テストを実行する．
