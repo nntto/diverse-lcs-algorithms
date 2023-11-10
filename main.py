@@ -3,6 +3,7 @@ import logging
 from pprint import pformat
 from lcs import LCS
 from lcs_graph import LCSGraph
+from path_k_tuple_graph import PathKTupleGraph
 from path_tuple_graph import PathTupleGraph
 
 
@@ -11,6 +12,7 @@ def setup_argparse():
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     parser.add_argument("X", type=str, help="First string for LCS computation")
     parser.add_argument("Y", type=str, help="Second string for LCS computation")
+    parser.add_argument("k", type=int, help="k for k-diverse LCS computation")
     return parser.parse_args()
 
 
@@ -42,16 +44,28 @@ def compute_lcs_graph(lcs, X, Y):
 
 
 def compute_path_tuple_graph(lcs_graph):
-    diverse_lcs_graph = PathTupleGraph(
+    path_tuple_graph = PathTupleGraph(
         lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G
     )
-    logging.info("Diverse LCS graph computed.")
-    logging.debug(f"DP table for diverse LCS graph:\n{pformat(diverse_lcs_graph.L)}")
-    logging.debug(f"V_H:\n{pformat(diverse_lcs_graph.V_H)}")
-    logging.debug(f"E_H:\n{pformat(diverse_lcs_graph.E_H)}")
-    logging.info(f"diverse LCS set :\n{pformat(diverse_lcs_graph.diverse_LCS_set)}")
-    logging.info(f"max hamming distance = {diverse_lcs_graph.hamming_distance}")
-    return diverse_lcs_graph
+    logging.info("2-Diverse LCS graph computed.")
+    logging.debug(f"DP table for diverse LCS graph:\n{pformat(path_tuple_graph.L)}")
+    logging.debug(f"V_H:\n{pformat(path_tuple_graph.V_H)}")
+    logging.debug(f"E_H:\n{pformat(path_tuple_graph.E_H)}")
+    logging.info(f"2-diverse LCS set :\n{pformat(path_tuple_graph.diverse_LCS_set)}")
+    logging.info(f"max hamming distance = {path_tuple_graph.hamming_distance}")
+    return path_tuple_graph
+
+
+def compute_path_k_tuple_graph(lcs_graph, k):
+    path_k_tuple_graph = PathKTupleGraph(
+        lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G, k
+    )
+    logging.info("k-Diverse LCS graph computed.")
+    logging.debug(
+        f"DP table for diverse LCS graph:\n{pformat(path_k_tuple_graph.mathcal_H)}"
+    )
+    logging.info(f"Diversity min = {path_k_tuple_graph.Diversity_min}")
+    return path_k_tuple_graph
 
 
 if __name__ == "__main__":
@@ -61,3 +75,4 @@ if __name__ == "__main__":
     lcs = compute_lcs(args.X, args.Y)
     lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
     path_tuple_graph = compute_path_tuple_graph(lcs_graph)
+    path_k_tuple_graph = compute_path_k_tuple_graph(lcs_graph, args.k)
