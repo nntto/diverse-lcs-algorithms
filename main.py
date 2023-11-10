@@ -51,7 +51,7 @@ def compute_path_tuple_graph(lcs_graph):
     logging.debug(f"DP table for diverse LCS graph:\n{pformat(path_tuple_graph.L)}")
     logging.debug(f"V_H:\n{pformat(path_tuple_graph.V_H)}")
     logging.debug(f"E_H:\n{pformat(path_tuple_graph.E_H)}")
-    logging.info(f"2-diverse LCS set :\n{pformat(path_tuple_graph.diverse_LCS_set)}")
+    logging.info(f"2-Diverse LCS set:\n{pformat(path_tuple_graph.diverse_LCS_set)}")
     logging.info(f"max hamming distance = {path_tuple_graph.hamming_distance}")
     return path_tuple_graph
 
@@ -60,9 +60,9 @@ def compute_path_k_tuple_graph(lcs_graph, k):
     path_k_tuple_graph = PathKTupleGraph(
         lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G, k
     )
-    logging.info("k-Diverse LCS graph computed.")
+    logging.info("mutual hamming weight matrix computed.")
     logging.debug(
-        f"DP table for diverse LCS graph:\n{pformat(path_k_tuple_graph.mathcal_H)}"
+        f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"
     )
     logging.info(f"Diversity min = {path_k_tuple_graph.Diversity_min}")
     return path_k_tuple_graph

@@ -20,7 +20,7 @@ INFO - LCS set: {'ABAB', 'BACB', 'ABCB'}
 INFO - 2-Diverse LCS graph computed.
 INFO - 2-diverse LCS set : {('ABAB', 'BACB'), ('BACB', 'ABAB')}
 INFO - max hamming distance = 3
-INFO - k-Diverse LCS graph computed.
+INFO - mutual hamming weight matrix computed.
 INFO - Diversity min = 3
 ```
 デバッグモードでの実行コマンド
