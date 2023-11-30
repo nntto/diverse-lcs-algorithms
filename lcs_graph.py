@@ -54,12 +54,13 @@ class LCSGraph:
             - 文字を設定 <=> (i-1, j-1)->(i,j)に遷移する,かつ,X[i-1] == Y[j-1]
             - 空文字を設定 <=> それ以外の場合
         4. epsilon除去を行う．
-        5. 階層化を行う
+        5. 受理状態を一つに統一する（特別な出口を表す頂点 t）
+        6. 階層化を行う
         """
         self.m = len(X)
         self.n = len(Y)
-        self.V_G = []
-        self.E_G = []
+        self.V_G = set()
+        self.E_G = set()
         self.X = X
         self.Y = Y
         self.s = s
@@ -76,6 +77,13 @@ class LCSGraph:
             "", self.V_G, self.E_G, {s}, {t}
         )
 
+        # epsilon遷移を除去したことで，受理状態が複数になる場合があるので，出口 t を一つに統一する
+        for edge in [e for e in self.eps_free_E_G if e[2] in F]:
+            self.eps_free_E_G.remove(edge)
+            self.eps_free_E_G.add((edge[0], edge[1], t))
+        self.eps_free_V_G = self.eps_free_V_G - F
+        self.eps_free_V_G.add(t)
+
         # epsilon遷移を削除したグラフの頂点集合に対して，Sからそれぞれの頂点までの距離を計算する
         distances = self._bfs()
 
@@ -91,7 +99,7 @@ class LCSGraph:
             return
         self.reached[u] = True
 
-        self.V_G.append(u)
+        self.V_G.add(u)
 
         if u == self.s:
             return
@@ -112,7 +120,7 @@ class LCSGraph:
 
             # 構築した辺 e を辺集合に追加する
             e = (u_prime, c, u)
-            self.E_G.append(e)
+            self.E_G.add(e)
 
             # u' から再帰的に探索する
             self._rec_reach(u_prime, previous_position_dict)
