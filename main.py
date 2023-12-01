@@ -96,11 +96,27 @@ def compute_path_k_tuple_graph(lcs_graph, k):
         lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G, k
     )
     logging.info("mutual hamming weight matrix computed.")
-    # logging.debug(
-    #     f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"
-    # )
+    logging.debug(
+        f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"
+    )
+    parent = path_k_tuple_graph.parent
+    logging.debug("parent:")
+    for h in parent.keys():
+        logging.debug(f"level {h}")
+        for q_vec in parent[h].keys():
+            logging.debug(f"   vertex {q_vec}")
+            for W in parent[h][q_vec].keys():
+                logging.debug(f"        matrix {W}")
+                for p_vec, W_prime in parent[h][q_vec][W].items():
+                    logging.debug(f"            →{p_vec}→{W_prime}")
     diversity_min = path_k_tuple_graph.Diversity_min
-    diverse_LCS_set = path_k_tuple_graph.compute_diverse_LCS_set(diversity_min, logging)
+    diverse_LCS_set = set()
+    path_k_tuple_graph.trace_one_path(
+        path_k_tuple_graph.max_min_matrix_set(diversity_min).pop(), logging
+    )
+    for W in path_k_tuple_graph.max_min_matrix_set(diversity_min):
+        logging.debug(f"diverse LCS set for W = {W}")
+        diverse_LCS_set |= path_k_tuple_graph.compute_diverse_LCS_set(W, logging)
     logging.info(f"{k}-Diversity min = {diversity_min}")
     logging.info(f"{k}-Diverse LCS set:\n{pformat(diverse_LCS_set)}")
 

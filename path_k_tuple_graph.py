@@ -131,9 +131,7 @@ class PathKTupleGraph:
             diversity_min = max(diversity_min, d_min)
         return diversity_min
 
-    def compute_diverse_LCS_set(
-        self, min_diversity: int, logging: logging
-    ) -> set[set[str]]:
+    def max_min_matrix_set(self, min_diversity: int) -> set[tuple[tuple[int]]]:
         # 最小ハミング距離が min_diversity のハミング行列のリストを作成
         matrix_set = set()
         for W in self.mathcal_H[self.ell][self.t_vec]:
@@ -143,14 +141,34 @@ class PathKTupleGraph:
             if d_min == min_diversity:
                 matrix_set.add(tuple([tuple(W[i]) for i in range(self.k)]))
 
-        logging.debug(f"find all diverse LCSs from matrix list: {pformat(matrix_set)}")
+        return matrix_set
+
+    def compute_diverse_LCS_set(
+        self, W: tuple[tuple[int]], logging: logging
+    ) -> set[set[str]]:
         # ハミング行列のリストから，diverse LCS の集合を構築
         diverse_LCS_set = set()
-        for W in matrix_set:
-            logging.debug(f"find all diverse LCSs from matrix: {W}")
-            self.dfs(self.ell, self.t_vec, W, [], diverse_LCS_set, logging)
-
+        self.dfs(self.ell, self.t_vec, W, [], diverse_LCS_set, logging)
         return diverse_LCS_set
+
+    def trace_one_path(self, W: tuple[tuple[int]], logging: logging):
+        h = self.ell
+        q_vec = self.t_vec
+        parents = self.parent[h][q_vec][hash(W)]
+
+        while parents:
+            p_vec, W_prime = parents.popitem()
+            edge = [
+                (_p_vec, c_vec, _q_vec)
+                for (_p_vec, c_vec, _q_vec) in self._in_edges_of(q_vec, h)
+                if _p_vec == p_vec
+            ][0]
+
+            c_vec = edge[1]
+            h -= 1
+            q_vec = p_vec
+            W = W_prime
+            parents = self.parent[h][q_vec][hash(W)]
 
     def dfs(
         self, h, q_vec, W, path_label_vec: list[list[str]], output_set, logging=None
