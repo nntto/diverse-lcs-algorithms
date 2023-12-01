@@ -1,6 +1,7 @@
 import argparse
 import logging
 from pprint import pformat
+import time
 from lcs import LCS
 from lcs_graph import LCSGraph
 from path_k_tuple_graph import PathKTupleGraph
@@ -18,7 +19,12 @@ def setup_argparse():
 
 def setup_logging(debug):
     level = logging.DEBUG if debug else logging.INFO
-    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+    # 現在時刻をファイル名とするログファイルを作成する
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filename=f"logs/{time.strftime('%Y%m%d_%H%M%S')}.log",
+    )
 
 
 def compute_lcs(X, Y):
