@@ -57,7 +57,7 @@ class PathKTupleGraph:
             mathcal_H[h] = {}
             self.parent[h] = {}
             for q_vec in self._vertices(h):
-                mathcal_H[h][q_vec] = []
+                mathcal_H[h][q_vec] = set()
                 self.parent[h][q_vec] = {}
                 for e_vec in self._in_edges_of(q_vec, h):
                     p_vec = e_vec[0]
@@ -70,7 +70,7 @@ class PathKTupleGraph:
                             W[k1][k2] = W_prime[k1][k2] + (
                                 0 if c_vec[k1] == c_vec[k2] else 1
                             )
-                        mathcal_H[h][q_vec].append(W)
+                        mathcal_H[h][q_vec].add(hash(W))
                         if hash(W) not in self.parent[h][q_vec]:
                             self.parent[h][q_vec][hash(W)] = {}
                         self.parent[h][q_vec][hash(W)][p_vec] = W_prime
