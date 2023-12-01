@@ -1,4 +1,5 @@
 from itertools import combinations, combinations_with_replacement
+import logging
 from pprint import pprint
 from typing import Dict, List, Tuple
 
@@ -131,38 +132,6 @@ class PathKTupleGraph:
         return diversity_min
 
     def compute_diverse_LCS_set(self, min_diversity: int) -> set[set[str]]:
-        def dfs(h, q_vec, W, path_label_vec: list[list[str]], output_set):
-            # 頂点 q_vec から親頂点 p_vec への辺のラベルを取得する
-            parents = self.parent[h][q_vec][hash(W)]
-
-            # 親が存在しない場合，パスラベル配列を出力集合に追加する
-            if not parents:
-                labels = [""] * self.k
-                for i in range(self.k):
-                    for c_vec in path_label_vec:
-                        labels[i] = c_vec[i] + labels[i]
-                output_set.add(tuple(labels))
-                return
-
-            for p_vec, W_prime in parents.items():
-                # 頂点 q_vec から親頂点 p_vec への辺のラベルベクトル c_vec を取得する
-                c_vec = ["" for _ in range(self.k)]
-                for i in range(self.k):
-                    p = p_vec[i]
-                    q = q_vec[i]
-                    edges = [
-                        edge
-                        for edge in self.leveled_E_G[h]
-                        if edge[0] == p and edge[2] == q
-                    ]
-                    if len(edges) != 1:
-                        raise Exception("辺の数が1ではありません")
-                    (_p, c, _p) = edges[0]
-                    c_vec[i] = c
-
-                # 再帰呼び出し
-                dfs(h - 1, p_vec, W_prime, path_label_vec + [c_vec], output_set)
-
         # 最小ハミング距離が min_diversity のハミング行列のリストを作成
         matrix_list = []
         for W in self.mathcal_H[self.ell][self.t_vec]:
@@ -175,6 +144,62 @@ class PathKTupleGraph:
         # ハミング行列のリストから，diverse LCS の集合を構築
         diverse_LCS_set = set()
         for W in matrix_list:
-            dfs(self.ell, self.t_vec, W, [], diverse_LCS_set)
+            self.dfs(self.ell, self.t_vec, W, [], diverse_LCS_set)
 
         return diverse_LCS_set
+
+    def compute_one_diverse_LCS(self, min_diversity: int, logging: logging) -> set[str]:
+        # 最小ハミング距離が min_diversity のハミング行列を一つ選択
+        matrix = None
+        for W in self.mathcal_H[self.ell][self.t_vec]:
+            d_min = min(
+                [W[i1][i2] for i1 in range(self.k) for i2 in range(self.k) if i1 > i2]
+            )
+            if d_min == min_diversity:
+                matrix = W
+                break
+
+        logging.debug(f"find all diverse LCSs from matrix: {matrix}")
+        self.dfs(self.ell, self.t_vec, matrix, [], set(), logging)
+        pass
+
+    def dfs(
+        self, h, q_vec, W, path_label_vec: list[list[str]], output_set, logging=None
+    ):
+        if logging:
+            logging.debug(f"dfs(h={h}, q_vec={q_vec})")
+
+        # 頂点 q_vec から親頂点 p_vec への辺のラベルを取得する
+        parents = self.parent[h][q_vec][hash(W)]
+
+        # 親が存在しない場合，パスラベル配列を出力集合に追加する
+        if not parents:
+            labels = [""] * self.k
+            for i in range(self.k):
+                for c_vec in path_label_vec:
+                    labels[i] = c_vec[i] + labels[i]
+            if logging:
+                logging.debug(f"output: {labels}")
+            output_set.add(tuple(labels))
+            return
+
+        for p_vec, W_prime in parents.items():
+            # 頂点 q_vec から親頂点 p_vec への辺のラベルベクトル c_vec を取得する
+            c_vec = ["" for _ in range(self.k)]
+            for i in range(self.k):
+                p = p_vec[i]
+                q = q_vec[i]
+                edges = [
+                    edge
+                    for edge in self.leveled_E_G[h]
+                    if edge[0] == p and edge[2] == q
+                ]
+                if len(edges) != 1:
+                    raise Exception("辺の数が1ではありません")
+                (_p, c, _p) = edges[0]
+                c_vec[i] = c
+
+            # 再帰呼び出し
+            self.dfs(
+                h - 1, p_vec, W_prime, path_label_vec + [c_vec], output_set, logging
+            )
