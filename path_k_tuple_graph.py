@@ -156,7 +156,8 @@ class PathKTupleGraph:
         self, h, q_vec, W, path_label_vec: list[list[str]], output_set, logging=None
     ):
         if logging:
-            logging.debug(f"dfs(h={h}, q_vec={q_vec})")
+            label_vec = path_label_vec[-1] if path_label_vec else "()"
+            logging.debug(f"dfs(h={h}, q_vec={q_vec}, W={W}), label_vec={label_vec}")
 
         # 頂点 q_vec から親頂点 p_vec への辺のラベルを取得する
         parents = self.parent[h][q_vec][hash(W)]
