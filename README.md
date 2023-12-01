@@ -26,8 +26,16 @@ INFO - Diversity min = 3
 ```
 デバッグモードでの実行コマンド
 ```bash
-python main.py python main.py "ABACB" "BABBCAB" 2 --debug
+python main.py "ABACB" "BABBCAB" 2 --debug
 ```
+ログは`logs`ディレクトリに保存されます．
+ログファイルには，以下の情報が記録されます．
+- 通常実行時のログ
+- LCS計算に用いたDPテーブル
+- LCSグラフ構築時に用いた，DPテーブルの辺の情報
+- イプシロン除去後のLCSグラフ
+- 階層化されたLCSグラフ
+- max-minになる mutual hamming weight matrix を一つ選んだときの，diverse LCS 集合構築の様子．
 
 ## ナイーブな実装
 実行コマンド：
