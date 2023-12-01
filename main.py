@@ -70,7 +70,11 @@ def compute_path_k_tuple_graph(lcs_graph, k):
     logging.debug(
         f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"
     )
-    logging.info(f"Diversity min = {path_k_tuple_graph.Diversity_min}")
+    diversity_min = path_k_tuple_graph.Diversity_min
+    diverse_LCS_set = path_k_tuple_graph.compute_diverse_LCS_set(diversity_min)
+    logging.info(f"{k}-Diversity min = {diversity_min}")
+    logging.info(f"{k}-Diverse LCS set:\n{pformat(diverse_LCS_set)}")
+
     return path_k_tuple_graph
 
 
@@ -80,5 +84,5 @@ if __name__ == "__main__":
 
     lcs = compute_lcs(args.X, args.Y)
     lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
-    path_tuple_graph = compute_path_tuple_graph(lcs_graph)
+    # path_tuple_graph = compute_path_tuple_graph(lcs_graph)
     path_k_tuple_graph = compute_path_k_tuple_graph(lcs_graph, args.k)

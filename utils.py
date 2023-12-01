@@ -1,6 +1,7 @@
 import numpy as np
 from termcolor import colored
 
+
 # 配列の中で異なる値のみ色を変えて表示する
 def print_array_diff(expected_array, actual_array):
     # 配列のサイズが異なる場合は，エラーを出力して終了する
@@ -34,3 +35,6 @@ def print_array_diff(expected_array, actual_array):
                 output_row.append(str(actual_array[i, j]))
         print(" ".join(output_row))
 
+
+def hash(matrix):
+    return tuple([tuple(row) for row in matrix])
