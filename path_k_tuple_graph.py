@@ -1,6 +1,6 @@
 from itertools import combinations, combinations_with_replacement
 import logging
-from pprint import pprint
+from pprint import pformat, pprint
 from typing import Dict, List, Tuple
 
 from custom_types import Edge_G, Edge_H, Vertex_G, Vertex_H
@@ -131,37 +131,26 @@ class PathKTupleGraph:
             diversity_min = max(diversity_min, d_min)
         return diversity_min
 
-    def compute_diverse_LCS_set(self, min_diversity: int) -> set[set[str]]:
+    def compute_diverse_LCS_set(
+        self, min_diversity: int, logging: logging
+    ) -> set[set[str]]:
         # 最小ハミング距離が min_diversity のハミング行列のリストを作成
-        matrix_list = []
+        matrix_set = set()
         for W in self.mathcal_H[self.ell][self.t_vec]:
             d_min = min(
                 [W[i1][i2] for i1 in range(self.k) for i2 in range(self.k) if i1 > i2]
             )
             if d_min == min_diversity:
-                matrix_list.append(W)
+                matrix_set.add(tuple([tuple(W[i]) for i in range(self.k)]))
 
+        logging.debug(f"find all diverse LCSs from matrix list: {pformat(matrix_set)}")
         # ハミング行列のリストから，diverse LCS の集合を構築
         diverse_LCS_set = set()
-        for W in matrix_list:
-            self.dfs(self.ell, self.t_vec, W, [], diverse_LCS_set)
+        for W in matrix_set:
+            logging.debug(f"find all diverse LCSs from matrix: {W}")
+            self.dfs(self.ell, self.t_vec, W, [], diverse_LCS_set, logging)
 
         return diverse_LCS_set
-
-    def compute_one_diverse_LCS(self, min_diversity: int, logging: logging) -> set[str]:
-        # 最小ハミング距離が min_diversity のハミング行列を一つ選択
-        matrix = None
-        for W in self.mathcal_H[self.ell][self.t_vec]:
-            d_min = min(
-                [W[i1][i2] for i1 in range(self.k) for i2 in range(self.k) if i1 > i2]
-            )
-            if d_min == min_diversity:
-                matrix = W
-                break
-
-        logging.debug(f"find all diverse LCSs from matrix: {matrix}")
-        self.dfs(self.ell, self.t_vec, matrix, [], set(), logging)
-        pass
 
     def dfs(
         self, h, q_vec, W, path_label_vec: list[list[str]], output_set, logging=None

@@ -71,10 +71,9 @@ def compute_path_k_tuple_graph(lcs_graph, k):
     #     f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"
     # )
     diversity_min = path_k_tuple_graph.Diversity_min
-    diverse_LCS_set = path_k_tuple_graph.compute_diverse_LCS_set(diversity_min)
+    diverse_LCS_set = path_k_tuple_graph.compute_diverse_LCS_set(diversity_min, logging)
     logging.info(f"{k}-Diversity min = {diversity_min}")
     logging.info(f"{k}-Diverse LCS set:\n{pformat(diverse_LCS_set)}")
-    diverse_LCS = path_k_tuple_graph.compute_one_diverse_LCS(diversity_min, logging)
 
     return path_k_tuple_graph
 
