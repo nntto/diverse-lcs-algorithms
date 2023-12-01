@@ -17,14 +17,43 @@ def setup_argparse():
     return parser.parse_args()
 
 
+class CustomFormatter(logging.Formatter):
+    def __init__(self, debug_format, info_format):
+        self.debug_format = debug_format
+        self.info_format = info_format
+        super().__init__(
+            fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt=None, style="%"
+        )
+
+    def format(self, record):
+        # ログレベルによってフォーマットを切り替え
+        if record.levelno <= logging.DEBUG:
+            self._style._fmt = self.debug_format
+        else:
+            self._style._fmt = self.info_format
+
+        return super().format(record)
+
+
 def setup_logging(debug):
     level = logging.DEBUG if debug else logging.INFO
-    # 現在時刻をファイル名とするログファイルを作成する
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        filename=f"logs/{time.strftime('%Y%m%d_%H%M%S')}.log",
-    )
+
+    # カスタムフォーマッタを作成
+    debug_format = "%(levelname)s - %(message)s"
+    info_format = "%(asctime)s - %(levelname)s - %(message)s"
+    formatter = CustomFormatter(debug_format, info_format)
+
+    # ログファイルの設定
+    log_filename = f"logs/{time.strftime('%Y%m%d_%H%M%S')}.log"
+
+    # ロギングハンドラを設定
+    handler = logging.FileHandler(log_filename)
+    handler.setFormatter(formatter)
+
+    # ロガーを設定
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    logger.addHandler(handler)
 
 
 def compute_lcs(X, Y):
