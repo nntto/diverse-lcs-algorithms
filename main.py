@@ -118,9 +118,6 @@ def compute_path_k_tuple_graph(lcs_graph, k):
                     logging.debug(f"            {c_vec}→{p_vec}→{W_prime}")
     diversity_min = path_k_tuple_graph.Diversity_min
     diverse_LCS_set = set()
-    path_k_tuple_graph.trace_one_path(
-        path_k_tuple_graph.max_min_matrix_set(diversity_min).pop(), logging
-    )
     for W in path_k_tuple_graph.max_min_matrix_set(diversity_min):
         logging.debug(f"diverse LCS set for W = {W}")
         diverse_LCS_set |= path_k_tuple_graph.compute_diverse_LCS_set(W, logging)
