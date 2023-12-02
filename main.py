@@ -108,7 +108,14 @@ def compute_path_k_tuple_graph(lcs_graph, k):
             for W in parent[h][q_vec].keys():
                 logging.debug(f"        matrix {W}")
                 for p_vec, W_prime in parent[h][q_vec][W].items():
-                    logging.debug(f"            →{p_vec}→{W_prime}")
+                    c_vec = [
+                        c_vec
+                        for (_p_vec, c_vec, _q_vec) in path_k_tuple_graph._in_edges_of(
+                            q_vec, h
+                        )
+                        if _p_vec == p_vec
+                    ][0]
+                    logging.debug(f"            {c_vec}→{p_vec}→{W_prime}")
     diversity_min = path_k_tuple_graph.Diversity_min
     diverse_LCS_set = set()
     path_k_tuple_graph.trace_one_path(
