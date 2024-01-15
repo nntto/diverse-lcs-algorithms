@@ -105,6 +105,12 @@ def compute_path_k_tuple_graph(lcs_graph, k):
     path_k_tuple_graph = PathKTupleGraph(
         lcs_graph.leveled_eps_free_V_G, lcs_graph.leveled_eps_free_E_G, k
     )
+
+    if not (
+        logging.getLogger().getEffectiveLevel() == logging.DEBUG
+        or logging.getLogger().getEffectiveLevel() == logging.INFO):
+        return path_k_tuple_graph
+
     logging.info("mutual hamming weight matrix computed.")
     logging.debug(
         f"mutual hamming weight matrix of k LCSs:\n{pformat(path_k_tuple_graph.mathcal_H)}"

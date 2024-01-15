@@ -154,28 +154,29 @@ class PathKTupleGraph:
     def dfs(
         self, h, q_vec, W, path_label_vec: list[list[str]], output_set, logging=None
     ):
+        # 頂点 q_vec から親頂点 p_vec への辺のラベルを取得する
+        parents = self.parent[h][q_vec][hash(W)]
+
         if logging:
             label_vec = path_label_vec[-1] if path_label_vec else "()"
             logging.debug(f"dfs(h={h}, q_vec={q_vec}, W={W}), label_vec={label_vec}")
 
-        # 頂点 q_vec から親頂点 p_vec への辺のラベルを取得する
-        parents = self.parent[h][q_vec][hash(W)]
 
-        # 親が存在しない，かつ h=0 の場合，パスラベル配列を出力集合に追加する
-        if not parents and h > 1:
-            print(f"h={h}, q_vec={q_vec}, W={W}")
-            pprint(self.parent[h][q_vec])
-            print(f"path_label_vec={path_label_vec}")
+            # 親が存在しない，かつ h=0 の場合，パスラベル配列を出力集合に追加する
+            if not parents and h > 1:
+                print(f"h={h}, q_vec={q_vec}, W={W}")
+                pprint(self.parent[h][q_vec])
+                print(f"path_label_vec={path_label_vec}")
 
-        if not parents:
-            labels = [""] * self.k
-            for i in range(self.k):
-                for c_vec in path_label_vec:
-                    labels[i] = c_vec[i] + labels[i]
-            if logging:
-                logging.debug(f"output: {labels}")
-            output_set.add(tuple(labels))
-            return
+            if not parents:
+                labels = [""] * self.k
+                for i in range(self.k):
+                    for c_vec in path_label_vec:
+                        labels[i] = c_vec[i] + labels[i]
+                if logging:
+                    logging.debug(f"output: {labels}")
+                output_set.add(tuple(labels))
+                return
 
         for p_vec, W_prime in parents.items():
             # 頂点 q_vec から親頂点 p_vec への辺のラベルベクトル c_vec を取得する
