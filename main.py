@@ -1,6 +1,6 @@
 import argparse
 import logging
-from pprint import pformat
+from pprint import pformat, pprint
 import time
 from lcs import LCS
 from lcs_graph import LCSGraph
@@ -10,7 +10,13 @@ from path_tuple_graph import PathTupleGraph
 
 def setup_argparse():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    # mode
+    parser.add_argument(
+        "--debug-level",
+        type=str,
+        default="None",
+        help="Enable debug logging if 'debug' is specified, Enable info logging if 'info' is specified, Disable logging if 'None' is specified",
+    )
     parser.add_argument("X", type=str, help="First string for LCS computation")
     parser.add_argument("Y", type=str, help="Second string for LCS computation")
     parser.add_argument("k", type=int, help="k for k-diverse LCS computation")
@@ -35,19 +41,23 @@ class CustomFormatter(logging.Formatter):
         return super().format(record)
 
 
-def setup_logging(debug):
-    level = logging.DEBUG if debug else logging.INFO
+def setup_logging(debug_level: str = "info" or "debug" or "None"):
+    if debug_level == "debug":
+        level = logging.DEBUG
+    elif debug_level == "info":
+        level = logging.INFO
+    else:
+        # 出力しない
+        level = logging.CRITICAL
+
 
     # カスタムフォーマッタを作成
     debug_format = "%(levelname)s - %(message)s"
     info_format = "%(asctime)s - %(levelname)s - %(message)s"
     formatter = CustomFormatter(debug_format, info_format)
 
-    # ログファイルの設定
-    log_filename = f"logs/{time.strftime('%Y%m%d_%H%M%S')}.log"
-
     # ロギングハンドラを設定
-    handler = logging.FileHandler(log_filename)
+    handler = logging.StreamHandler()
     handler.setFormatter(formatter)
 
     # ロガーを設定
@@ -116,6 +126,10 @@ def compute_path_k_tuple_graph(lcs_graph, k):
                         if _p_vec == p_vec
                     ][0]
                     logging.debug(f"            {c_vec}→{p_vec}→{W_prime}")
+    return path_k_tuple_graph
+
+def compute_min_diversity_set(path_k_tuple_graph: PathKTupleGraph) -> set[str]:
+    k = path_k_tuple_graph.k
     diversity_min = path_k_tuple_graph.Diversity_min
     diverse_LCS_set = set()
     for W in path_k_tuple_graph.max_min_matrix_set(diversity_min):
@@ -124,14 +138,27 @@ def compute_path_k_tuple_graph(lcs_graph, k):
     logging.info(f"{k}-Diversity min = {diversity_min}")
     logging.info(f"{k}-Diverse LCS set:\n{pformat(diverse_LCS_set)}")
 
-    return path_k_tuple_graph
+    # 重複を含まないようにする
+    non_duplicate_diverse_LCS_set = set()
+    for S in diverse_LCS_set:
+        # S をソート
+        S = list(S)
+        S.sort()
+        non_duplicate_diverse_LCS_set.add(tuple(S))
+
+    return non_duplicate_diverse_LCS_set
+
 
 
 if __name__ == "__main__":
     args = setup_argparse()
-    setup_logging(args.debug)
+    setup_logging(args.debug_level)
 
     lcs = compute_lcs(args.X, args.Y)
     lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
     # path_tuple_graph = compute_path_tuple_graph(lcs_graph)
     path_k_tuple_graph = compute_path_k_tuple_graph(lcs_graph, args.k)
+    min_diversity_set = compute_min_diversity_set(path_k_tuple_graph)
+
+    print(f"min_diversity = {path_k_tuple_graph.Diversity_min}")
+    print(f"min_diversity_set = {pformat(min_diversity_set)}")
