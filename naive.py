@@ -1,6 +1,22 @@
 import argparse
 import logging
 from itertools import combinations
+from pprint import pformat
+
+from lcs import LCS
+from main import setup_argparse, setup_logging
+
+def compute_lcs_set(X, Y) -> set[str]:
+    lcs = LCS(X, Y)
+    logging.info(f"LCS computed for strings '{X}' and '{Y}'")
+    logging.info(f"LCS length = {lcs.length}")
+    logging.debug(f"DP table:\n{pformat(lcs.dp_table)}")
+    logging.debug(
+        f"Previous position dict:\n{pformat({k: [e.name for e in v] for k, v in lcs.previous_position_dict.items()})}"
+    )
+    lcs_set = lcs.lcs_set()
+    logging.info(f"LCS set:\n{pformat(lcs_set)}")
+    return lcs_set
 
 def hamming_distance(s1, s2):
     return sum(c1 != c2 for c1, c2 in zip(s1, s2))
@@ -19,23 +35,18 @@ def min_diversity_k_string(k, str_set):
 
     return min_diversity, min_diversity_set
 
-def setup_argparse():
-    parser = argparse.ArgumentParser(description="Calculate k-diverse string sets and their minimum Hamming distance.")
-    parser.add_argument('str_set', nargs='+', type=str, help="Set of strings to consider for k-diverse calculations")
-    parser.add_argument('k', type=int, help="Value of k for k-diverse calculation")
-    return parser.parse_args()
-
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def main():
     args = setup_argparse()
-    setup_logging()
+    setup_logging(args.debug)
     
-    logging.info(f"Received the following string set: {args.str_set}")
+    logging.info(f"Received the following string X: {args.X}")
+    logging.info(f"Received the following string Y: {args.Y}")
     logging.info(f"Received the following value of k: {args.k}")
+
+    lcs_set = compute_lcs_set(args.X, args.Y)
     
-    min_diversity, min_diversity_set = min_diversity_k_string(args.k, args.str_set)
+    min_diversity, min_diversity_set = min_diversity_k_string(args.k, lcs_set)
     logging.info(f"Minimum diversity: {min_diversity}")
     logging.info(f"Minimum diversity set: {min_diversity_set}")
 

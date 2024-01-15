@@ -13,9 +13,18 @@ class LCS:
     # LCSの長さ
     length: int
 
+    m: int
+    n: int
+    X: str
+    Y: str
+
     def __init__(self, X: str, Y: str) -> None:
         m = len(X)
         n = len(Y)
+        self.m = m
+        self.n = n
+        self.X = X
+        self.Y = Y
 
         dp_table = np.zeros((m + 1, n + 1), dtype=int)
         previous_position_dict = {}
@@ -55,3 +64,31 @@ class LCS:
         self.dp_table = dp_table
         self.previous_position_dict = previous_position_dict
         self.length = dp_table[m, n]
+    
+    def lcs_set(self) -> set[str]:
+        """LCS集合を返す"""
+        lcs_set = set()
+        self._trace_lcs(self.m, self.n, "", lcs_set)
+        return lcs_set
+    
+    def _trace_lcs(self, i: int, j: int, lcs: str, lcs_set: set[str]) -> None:
+        """(i, j)からトレースを辿り，LCS集合を求める"""
+        if i == 0 or j == 0:
+            lcs_set.add(lcs[::-1])
+            return
+        
+        for direction in self.previous_position_dict[(i, j)]:
+            if direction == Direction.UP:
+                self._trace_lcs(i - 1, j, lcs, lcs_set)
+            elif direction == Direction.LEFT:
+                self._trace_lcs(i, j - 1, lcs, lcs_set)
+            elif direction == Direction.UPPER_LEFT:
+                if self.X[i - 1] != self.Y[j - 1]:
+                    # 文字が一致しない場合はスキップ
+                    continue
+                else:
+                    self._trace_lcs(i - 1, j - 1, lcs + self.X[i - 1], lcs_set)
+            else:
+                raise ValueError(f"Invalid direction: {direction}")
+        
+
