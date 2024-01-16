@@ -161,10 +161,10 @@ if __name__ == "__main__":
     setup_logging(args.debug_level)
 
     lcs = compute_lcs(args.X, args.Y)
+    print(f"lcs_length = {lcs.length}")
     lcs_graph = compute_lcs_graph(lcs, args.X, args.Y)
-    # path_tuple_graph = compute_path_tuple_graph(lcs_graph)
+    print(f"lcs_count = {len(lcs_graph.LCS_set)}")
     path_k_tuple_graph = compute_path_k_tuple_graph(lcs_graph, args.k)
-    min_diversity_set = compute_min_diversity_set(path_k_tuple_graph)
 
     print(f"min_diversity = {path_k_tuple_graph.Diversity_min}")
-    print(f"min_diversity_set = {pformat(min_diversity_set)}")
+    # print(f"min_diversity_set_count = {len(min_diversity_set)}")

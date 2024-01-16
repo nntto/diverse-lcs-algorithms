@@ -25,18 +25,12 @@ def minimum_hamming_distance(S):
 
 def min_diversity_k_string(k, str_set):
     min_diversity = -float("inf")
-    min_diversity_set_dict = {}
 
     for S in combinations(str_set, k):
         if min_diversity <= (diversity := minimum_hamming_distance(S)):
-            if diversity not in min_diversity_set_dict:
-                min_diversity_set_dict[diversity] = set()
-
-            S = tuple(sorted(S))
             min_diversity = diversity
-            min_diversity_set_dict[diversity].add(S)
 
-    return min_diversity, min_diversity_set_dict[min_diversity]
+    return min_diversity
 
 
 def main():
@@ -48,16 +42,13 @@ def main():
     logging.info(f"Received the following value of k: {args.k}")
 
     lcs = LCS(args.X, args.Y)
-    lcs_set = compute_lcs_set(lcs)
-    
-    min_diversity, min_diversity_set = min_diversity_k_string(args.k, lcs_set)
-    logging.info(f"Minimum diversity: {min_diversity}")
-    logging.info(f"Minimum diversity set: {min_diversity_set}")
     print(f"lcs_length = {lcs.length}")
-    print(f"lcs_set = {lcs_set}")
+    lcs_set = compute_lcs_set(lcs)
     print(f"lcs_count = {len(lcs_set)}")
+    
+    min_diversity = min_diversity_k_string(args.k, lcs_set)
+    logging.info(f"Minimum diversity: {min_diversity}")
     print(f"min_diversity = {min_diversity}")
-    print(f"min_diversity_set = {pformat(min_diversity_set)}")
 
 if __name__ == "__main__":
     main()
