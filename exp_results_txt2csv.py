@@ -7,6 +7,8 @@ import sys
 def parse_experiment_data_fixed(data):
     # Regular expressions to extract the required data
     n_k_pattern = re.compile(r'n = .+? = (\d+), k = (\d+)')
+    lcs_length_pattern = re.compile(r'lcs_length = (\d+)')
+    lcs_count_pattern = re.compile(r'lcs_count = (\d+)')
     time_pattern = re.compile(r'(\d+\.\d+) real')
     memory_pattern = re.compile(r'(\d+)  maximum resident set size')
     algorithm_pattern = re.compile(r'Running (.+).py')
@@ -30,6 +32,18 @@ def parse_experiment_data_fixed(data):
             n, k = n_k_match.groups()
             continue
 
+        # Extracting LCS length
+        lcs_length_match = lcs_length_pattern.search(line)
+        if lcs_length_match:
+            lcs_length = lcs_length_match.group(1)
+            continue
+            
+        # Extracting LCS count
+        lcs_count_match = lcs_count_pattern.search(line)
+        if lcs_count_match:
+            lcs_count = lcs_count_match.group(1)
+            continue
+
         # Extracting running time
         time_match = time_pattern.search(line)
         if time_match:
@@ -41,7 +55,7 @@ def parse_experiment_data_fixed(data):
         if memory_match:
             memory_usage = memory_match.group(1)
             # Adding the extracted data to the list
-            parsed_data.append({'algorithm': algorithm, 'n': n, 'k': k, 'running time': running_time, 'memory usage': memory_usage})
+            parsed_data.append({'algorithm': algorithm, 'n': n, 'k': k, 'lcs_length': lcs_length, 'lcs_count': lcs_count, 'running time': running_time, 'memory usage': memory_usage})
 
     return parsed_data
 
@@ -57,7 +71,7 @@ parsed_experiment_data_fixed = parse_experiment_data_fixed(experiment_data)
 
 # Creating a CSV from the parsed data
 csv_output_fixed = StringIO()
-csv_writer = csv.DictWriter(csv_output_fixed, fieldnames=['algorithm', 'n', 'k', 'running time', 'memory usage'])
+csv_writer = csv.DictWriter(csv_output_fixed, fieldnames=['algorithm', 'n', 'k', 'lcs_length', 'lcs_count', 'running time', 'memory usage'])
 csv_writer.writeheader()
 csv_writer.writerows(parsed_experiment_data_fixed)
 
