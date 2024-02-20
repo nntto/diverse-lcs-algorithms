@@ -36,3 +36,15 @@ lcs_length = 4
 lcs_count = 3
 min_diversity = 3
 ```
+
+# 実験
+実行コマンド：
+```bash
+./exp.sh
+```
+
+- 出力ファイル
+  - `experiment.txt`: 実験のログ．
+  - `expertiment.csv`: 実験結果．タイムアウトした場合の結果も含むので注意．
+  - `./exp_plt/`: 実験結果のグラフ．
+

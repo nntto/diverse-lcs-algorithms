@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+# time-out
+TIMEOUT = 1000
 
 # filename from args
 args = sys.argv[1:]
@@ -45,6 +47,13 @@ def plot_and_save_experiment_data_log_scale(df, fixed_var, fixed_val, x_axis, y_
     # Filtering the DataFrame for the specific value of k or n
     subset = df[df[fixed_var] == fixed_val]
 
+    # タイムアウトを超えるデータは除外
+    subset = subset[subset['running time'] <= TIMEOUT]
+
+    # Check if the subset is empty or has less than 3 data points
+    if subset.empty or len(subset) <= 2:
+        return None
+
     # Plotting separate lines for main and naive algorithms
     algorithms = subset['algorithm'].unique()
     
@@ -54,7 +63,8 @@ def plot_and_save_experiment_data_log_scale(df, fixed_var, fixed_val, x_axis, y_
     for algorithm in algorithms:
         algorithm_subset = subset[subset['algorithm'] == algorithm]
         # byte -> MB
-        algorithm_subset.loc[:, 'memory usage'] = algorithm_subset['memory usage'] / 1024 / 1024
+        algorithm_subset = algorithm_subset.copy()
+        algorithm_subset['memory usage'] = algorithm_subset['memory usage'] / 1024 / 1024
 
         plt.plot(algorithm_subset[x_axis], algorithm_subset[y_axis], marker='o', label=algorithm_map[algorithm])
 
@@ -63,15 +73,23 @@ def plot_and_save_experiment_data_log_scale(df, fixed_var, fixed_val, x_axis, y_
     plt.xlabel(axis_map[x_axis])
     plt.ylabel(axis_map[y_axis])
     plt.yscale('log')  # Setting y-axis to logarithmic scale
-    plt.xscale('log')  # Setting y-axis to logarithmic scale
     # plt.title(f'{y_axis} vs {x_axis} ({fixed_var} = {fixed_val}, Log Scale)')
     plt.legend()
     plt.grid(True)
+
+    # y軸の上限を指定
+    if y_axis == 'running time':
+        plt.ylim(None, TIMEOUT)
+    
+    # データラベルを下に
+    # plt.legend(loc='lower right')
 
     # Generating a filename for the plot
     filename = f'./exp_plt/{fixed_var}={fixed_val}_{x_axis}_vs_{y_axis}.pdf'.replace(' ', '_')
     plt.savefig(filename)  # Saving the plot as an image
     plt.close()  # Closing the plot to free up memory
+
+    print(f"Saved plot for {fixed_var}={fixed_val}, {x_axis} vs {y_axis} as {filename}")
 
     return filename
 

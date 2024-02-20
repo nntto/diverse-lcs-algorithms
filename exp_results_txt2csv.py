@@ -6,7 +6,7 @@ import sys
 # Redefining the function with all necessary regular expressions defined within its scope
 def parse_experiment_data_fixed(data):
     # Regular expressions to extract the required data
-    n_k_pattern = re.compile(r'n = .+? = (\d+), k = (\d+)')
+    n_k_pattern = re.compile(r'n = (\d+), k = (\d+)')
     lcs_length_pattern = re.compile(r'lcs_length = (\d+)')
     lcs_count_pattern = re.compile(r'lcs_count = (\d+)')
     time_pattern = re.compile(r'(\d+\.\d+) real')
