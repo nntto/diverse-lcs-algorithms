@@ -2,3 +2,5 @@ __pycache__
 venv
 ignore
 gridboard
+exp_plt
+.DS_Store
